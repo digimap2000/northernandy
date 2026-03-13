@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ "${1:-}" = "" ] || [ "${2:-}" = "" ] || [ "${3:-}" = "" ]; then
+  echo "Usage: ./scripts/new-derived-social project-slug entry-slug \"Entry Title\""
+  exit 1
+fi
+
+project="$1"
+entry_slug="$2"
+title="$3"
+today="$(date +%F)"
+target="content/derived/social/${today}-${project}-${entry_slug}.md"
+template="content/reference/templates/derived-social.md"
+
+if [ ! -d "content/projects/${project}" ]; then
+  echo "Unknown project: content/projects/${project}"
+  exit 1
+fi
+
+if [ -e "$target" ]; then
+  echo "File already exists: $target"
+  exit 1
+fi
+
+cp "$template" "$target"
+ENTRY_TITLE="$title" PROJECT_SLUG="$project" ENTRY_DATE="$today" \
+  perl -0pi -e 's/__TITLE__/$ENV{ENTRY_TITLE}/g; s/__PROJECT__/$ENV{PROJECT_SLUG}/g; s/2000-01-01/$ENV{ENTRY_DATE}/g' \
+  "$target"
+
+echo "Created $target"

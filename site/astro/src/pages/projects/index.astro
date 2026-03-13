@@ -1,0 +1,21 @@
+---
+import { getCollection } from "astro:content";
+import EntryList from "../../components/EntryList.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { isProjectLanding, sortEntries } from "../../lib/archive";
+
+const projects = sortEntries((await getCollection("projects")).filter(isProjectLanding));
+---
+
+<BaseLayout title="Projects | northernandy" description="Canonical project records from the archive.">
+  <section class="section-panel">
+    <p class="eyebrow">Projects</p>
+    <h1>Canonical project records</h1>
+    <p class="lede">
+      These are the durable source pages. Experiments, failures, and lessons are attached to each project rather than hidden inside a frontend.
+    </p>
+  </section>
+
+  <EntryList collection="projects" entries={projects} />
+</BaseLayout>
+

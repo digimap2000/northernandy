@@ -1,0 +1,19 @@
+---
+import { getCollection } from "astro:content";
+import EntryList from "../../components/EntryList.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { sortEntries } from "../../lib/archive";
+
+const entries = sortEntries(await getCollection("notes"));
+---
+
+<BaseLayout title="Notes | northernandy" description="Working notes from the archive.">
+  <section class="section-panel">
+    <p class="eyebrow">Notes</p>
+    <h1>Working notes</h1>
+    <p class="lede">Reusable thinking, writing principles, and intermediate knowledge that should stay easy to find.</p>
+  </section>
+
+  <EntryList collection="notes" entries={entries} />
+</BaseLayout>
+

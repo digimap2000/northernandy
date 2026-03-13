@@ -1,0 +1,33 @@
+---
+import { buildEntryUrl, formatDate } from "../lib/archive";
+
+const { collection, entries, title, intro } = Astro.props;
+---
+
+<section class="section-stack">
+  {title && (
+    <div class="section-heading">
+      <p class="eyebrow">Archive View</p>
+      <h2>{title}</h2>
+      {intro && <p class="lede">{intro}</p>}
+    </div>
+  )}
+
+  <ul class="entry-list">
+    {entries.map((entry) => (
+      <li class="entry-card">
+        <a class="entry-link" href={buildEntryUrl(collection, entry.id)}>
+          <span class="entry-kicker">{entry.data.type}</span>
+          <h3>{entry.data.title}</h3>
+          {entry.data.summary && <p>{entry.data.summary}</p>}
+          <div class="entry-meta">
+            <span>{formatDate(entry.data.updated ?? entry.data.date)}</span>
+            {entry.data.status && <span>{entry.data.status}</span>}
+            {entry.data.project && <span>{entry.data.project}</span>}
+          </div>
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>
+

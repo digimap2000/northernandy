@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ "${1:-}" = "" ] || [ "${2:-}" = "" ]; then
+  echo "Usage: ./scripts/new-project project-slug \"Project Title\""
+  exit 1
+fi
+
+slug="$1"
+title="$2"
+today="$(date +%F)"
+project_dir="content/projects/${slug}"
+templates_dir="content/reference/templates"
+
+if [ -e "$project_dir" ]; then
+  echo "Project already exists: $project_dir"
+  exit 1
+fi
+
+mkdir -p "$project_dir/experiments"
+cp "$templates_dir/project-index.md" "$project_dir/index.md"
+cp "$templates_dir/project-overview.md" "$project_dir/overview.md"
+cp "$templates_dir/project-failures.md" "$project_dir/failures.md"
+cp "$templates_dir/project-lessons-learned.md" "$project_dir/lessons-learned.md"
+
+PROJECT_TITLE="$title" PROJECT_SLUG="$slug" PROJECT_DATE="$today" \
+  perl -0pi -e 's/__TITLE__/$ENV{PROJECT_TITLE}/g; s/__PROJECT__/$ENV{PROJECT_SLUG}/g; s/2000-01-01/$ENV{PROJECT_DATE}/g' \
+  "$project_dir/index.md"
+
+PROJECT_SLUG="$slug" PROJECT_DATE="$today" \
+  perl -0pi -e 's/__PROJECT__/$ENV{PROJECT_SLUG}/g; s/2000-01-01/$ENV{PROJECT_DATE}/g' \
+  "$project_dir/overview.md" \
+  "$project_dir/failures.md" \
+  "$project_dir/lessons-learned.md"
+
+echo "Created $project_dir"

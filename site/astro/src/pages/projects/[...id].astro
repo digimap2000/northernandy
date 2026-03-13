@@ -1,0 +1,60 @@
+---
+import { getCollection, render } from "astro:content";
+import ArchiveEntryLayout from "../../layouts/ArchiveEntryLayout.astro";
+import EntryList from "../../components/EntryList.astro";
+import { buildEntryUrl, getProjectSlug, isProjectLog, sortEntries, withBase } from "../../lib/archive";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("projects");
+  return entries.map((entry) => ({
+    params: { id: entry.id },
+    props: { entry }
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const projectSlug = getProjectSlug(entry);
+const allProjectEntries = await getCollection("projects");
+const relatedProjectEntries = sortEntries(
+  allProjectEntries.filter((item) => item.id !== entry.id && getProjectSlug(item) === projectSlug)
+);
+const siblingPages = relatedProjectEntries.filter((item) => !isProjectLog(item));
+const experimentLogs = relatedProjectEntries.filter((item) => isProjectLog(item));
+---
+
+<ArchiveEntryLayout
+  collection="projects"
+  entry={entry}
+  title={entry.data.title}
+  description={entry.data.description ?? entry.data.summary}
+>
+  <div class="action-row">
+    <a class="button secondary" href={withBase("/projects/")}>Back to projects</a>
+    {entry.id !== projectSlug && <a class="button" href={buildEntryUrl("projects", projectSlug)}>Open project root</a>}
+  </div>
+
+  <Content />
+
+  {(siblingPages.length > 0 || experimentLogs.length > 0) && (
+    <section class="section-stack">
+      {siblingPages.length > 0 && (
+        <EntryList
+          collection="projects"
+          entries={siblingPages}
+          title="Related project pages"
+          intro="Additional pages attached to this project."
+        />
+      )}
+      {experimentLogs.length > 0 && (
+        <EntryList
+          collection="projects"
+          entries={experimentLogs}
+          title="Experiments and logs"
+          intro="Chronological work notes connected to this project."
+        />
+      )}
+    </section>
+  )}
+</ArchiveEntryLayout>
+

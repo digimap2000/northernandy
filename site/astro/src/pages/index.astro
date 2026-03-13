@@ -1,0 +1,95 @@
+---
+import { getCollection } from "astro:content";
+import EntryList from "../components/EntryList.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { isProjectLanding, sortEntries, withBase } from "../lib/archive";
+
+const projects = sortEntries((await getCollection("projects")).filter(isProjectLanding));
+const logs = sortEntries(await getCollection("logs"));
+const notes = sortEntries(await getCollection("notes"));
+const reference = sortEntries(await getCollection("reference"));
+const social = sortEntries(await getCollection("derivedSocial"));
+const scripts = sortEntries(await getCollection("derivedScripts"));
+---
+
+<BaseLayout
+  title="northernandy | Archive"
+  description="Durable project archive with Astro used as a replaceable presentation layer."
+>
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow">Archive First</p>
+        <h1>Document once. Render anywhere.</h1>
+        <p class="lede">
+          Canonical project records, logs, notes, and reference material live outside the site implementation.
+          Astro reads the archive. It does not own it.
+        </p>
+        <div class="action-row">
+          <a class="button" href={withBase("/projects/")}>Browse projects</a>
+          <a class="button secondary" href={withBase("/derived/social/")}>View derived content</a>
+        </div>
+      </div>
+      <div class="detail-grid">
+        <article class="detail-card">
+          <p class="eyebrow">Canonical</p>
+          <h2>Markdown archive</h2>
+          <p>Projects, logs, notes, reference material, failures, lessons, and experiments live in plain files.</p>
+        </article>
+        <article class="detail-card">
+          <p class="eyebrow">Derived</p>
+          <h2>Regenerable output</h2>
+          <p>Social drafts and scripts are kept separate so publicity never replaces source material.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-panel">
+    <div class="stats-grid">
+      <article class="stat-card">
+        <p class="stat-value">{projects.length}</p>
+        <p class="stat-label">project records</p>
+      </article>
+      <article class="stat-card">
+        <p class="stat-value">{logs.length}</p>
+        <p class="stat-label">archive logs</p>
+      </article>
+      <article class="stat-card">
+        <p class="stat-value">{notes.length + reference.length}</p>
+        <p class="stat-label">notes and references</p>
+      </article>
+      <article class="stat-card">
+        <p class="stat-value">{social.length + scripts.length}</p>
+        <p class="stat-label">derived drafts</p>
+      </article>
+    </div>
+  </section>
+
+  <EntryList
+    collection="projects"
+    entries={projects.slice(0, 3)}
+    title="Projects"
+    intro="The canonical record of work. Start here."
+  />
+
+  <section class="split-grid">
+    <div class="section-panel">
+      <EntryList
+        collection="logs"
+        entries={logs.slice(0, 3)}
+        title="Recent Logs"
+        intro="Repository-wide changes and dated updates."
+      />
+    </div>
+    <div class="section-panel">
+      <EntryList
+        collection="notes"
+        entries={notes.slice(0, 3)}
+        title="Notes"
+        intro="Working principles, lessons, and reusable thinking."
+      />
+    </div>
+  </section>
+</BaseLayout>
+

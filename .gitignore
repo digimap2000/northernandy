@@ -1,0 +1,6 @@
+.DS_Store
+.obsidian/
+site/astro/node_modules/
+site/astro/dist/
+site/astro/.astro/
+site/astro/.generated-public/

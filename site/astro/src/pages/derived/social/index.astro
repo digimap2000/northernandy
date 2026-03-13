@@ -1,0 +1,21 @@
+---
+import { getCollection } from "astro:content";
+import EntryList from "../../../components/EntryList.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { sortEntries } from "../../../lib/archive";
+
+const entries = sortEntries(await getCollection("derivedSocial"));
+---
+
+<BaseLayout title="Derived Social | northernandy" description="Derived social drafts generated from canonical archive content.">
+  <section class="section-panel">
+    <p class="eyebrow">Derived Social</p>
+    <h1>Platform-specific drafts</h1>
+    <p class="lede">
+      These files are useful, but they are not the primary record. Every entry here should trace back to canonical archive material.
+    </p>
+  </section>
+
+  <EntryList collection="derivedSocial" entries={entries} />
+</BaseLayout>
+

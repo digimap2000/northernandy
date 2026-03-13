@@ -1,0 +1,52 @@
+---
+import "../styles/site.css";
+import { withBase } from "../lib/archive";
+
+const { title = "northernandy", description = "Durable project archive rendered through Astro." } = Astro.props;
+
+const navigation = [
+  { label: "Home", href: withBase("/") },
+  { label: "Projects", href: withBase("/projects/") },
+  { label: "Logs", href: withBase("/logs/") },
+  { label: "Notes", href: withBase("/notes/") },
+  { label: "Reference", href: withBase("/reference/") },
+  { label: "Derived", href: withBase("/derived/social/") }
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <div class="wrap masthead">
+          <div>
+            <a class="brand" href={withBase("/")}>northernandy</a>
+            <p class="brand-note">The archive is the product.</p>
+          </div>
+          <nav class="site-nav" aria-label="Primary">
+            {navigation.map((item) => (
+              <a href={item.href}>{item.label}</a>
+            ))}
+          </nav>
+        </div>
+      </header>
+      <main class="wrap">
+        <slot />
+      </main>
+      <footer class="site-footer">
+        <div class="wrap footer-grid">
+          <p>Canonical content lives in the root archive. Astro is only the current renderer.</p>
+          <p>Markdown-first. Portable. Replaceable.</p>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
+

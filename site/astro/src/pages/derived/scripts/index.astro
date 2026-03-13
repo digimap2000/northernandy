@@ -1,0 +1,19 @@
+---
+import { getCollection } from "astro:content";
+import EntryList from "../../../components/EntryList.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { sortEntries } from "../../../lib/archive";
+
+const entries = sortEntries(await getCollection("derivedScripts"));
+---
+
+<BaseLayout title="Derived Scripts | northernandy" description="Derived scripts and outlines from canonical archive content.">
+  <section class="section-panel">
+    <p class="eyebrow">Derived Scripts</p>
+    <h1>Video and narration drafts</h1>
+    <p class="lede">Scripts live here when they are generated from canonical records and remain clearly non-primary.</p>
+  </section>
+
+  <EntryList collection="derivedScripts" entries={entries} />
+</BaseLayout>
+

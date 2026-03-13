@@ -1,0 +1,19 @@
+---
+import { getCollection } from "astro:content";
+import EntryList from "../../components/EntryList.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { sortEntries } from "../../lib/archive";
+
+const entries = sortEntries(await getCollection("logs"));
+---
+
+<BaseLayout title="Logs | northernandy" description="Repository-wide dated logs from the archive.">
+  <section class="section-panel">
+    <p class="eyebrow">Logs</p>
+    <h1>Archive logbook</h1>
+    <p class="lede">Dated records of changes, pivots, maintenance, and archive-wide decisions.</p>
+  </section>
+
+  <EntryList collection="logs" entries={entries} />
+</BaseLayout>
+

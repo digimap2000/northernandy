@@ -1,0 +1,33 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import { collectionLabel, formatDate } from "../lib/archive";
+
+const { title, description, collection, entry } = Astro.props;
+---
+
+<BaseLayout title={`${title} | northernandy`} description={description}>
+  <article class="article-shell">
+    <header class="article-header">
+      <p class="eyebrow">{collectionLabel(collection)}</p>
+      <h1>{title}</h1>
+      {description && <p class="lede">{description}</p>}
+      <div class="article-meta">
+        <span>{entry.data.type}</span>
+        <span>{formatDate(entry.data.updated ?? entry.data.date)}</span>
+        {entry.data.status && <span>{entry.data.status}</span>}
+        {entry.data.project && <span>{entry.data.project}</span>}
+      </div>
+      {entry.data.tags?.length > 0 && (
+        <ul class="tag-list">
+          {entry.data.tags.map((tag) => (
+            <li>{tag}</li>
+          ))}
+        </ul>
+      )}
+    </header>
+    <div class="article-content">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>
+

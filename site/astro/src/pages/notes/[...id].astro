@@ -1,0 +1,29 @@
+---
+import { getCollection, render } from "astro:content";
+import ArchiveEntryLayout from "../../layouts/ArchiveEntryLayout.astro";
+import { withBase } from "../../lib/archive";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("notes");
+  return entries.map((entry) => ({
+    params: { id: entry.id },
+    props: { entry }
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<ArchiveEntryLayout
+  collection="notes"
+  entry={entry}
+  title={entry.data.title}
+  description={entry.data.description ?? entry.data.summary}
+>
+  <div class="action-row">
+    <a class="button secondary" href={withBase("/notes/")}>Back to notes</a>
+  </div>
+  <Content />
+</ArchiveEntryLayout>
+

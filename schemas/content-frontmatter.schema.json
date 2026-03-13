@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://northernandy.dev/schemas/content-frontmatter.schema.json",
+  "title": "Archive content front matter",
+  "description": "Portable front matter for canonical and derived archive content.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "updated": {
+      "type": "string",
+      "format": "date"
+    },
+    "project": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "project",
+        "project-page",
+        "project-log",
+        "log",
+        "note",
+        "reference",
+        "derived-social",
+        "derived-script"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "title",
+    "date",
+    "type"
+  ]
+}
+

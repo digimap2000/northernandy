@@ -1,0 +1,15 @@
+{
+  "canonical": [
+    "project",
+    "project-page",
+    "project-log",
+    "log",
+    "note",
+    "reference"
+  ],
+  "derived": [
+    "derived-social",
+    "derived-script"
+  ]
+}
+

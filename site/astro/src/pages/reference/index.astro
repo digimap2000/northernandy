@@ -1,0 +1,19 @@
+---
+import { getCollection } from "astro:content";
+import EntryList from "../../components/EntryList.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { sortEntries } from "../../lib/archive";
+
+const entries = sortEntries(await getCollection("reference"));
+---
+
+<BaseLayout title="Reference | northernandy" description="Reference material and templates from the archive.">
+  <section class="section-panel">
+    <p class="eyebrow">Reference</p>
+    <h1>Reference material</h1>
+    <p class="lede">Templates, content rules, and structural guidance that support the archive without owning it.</p>
+  </section>
+
+  <EntryList collection="reference" entries={entries} />
+</BaseLayout>
+
