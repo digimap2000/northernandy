@@ -3,6 +3,7 @@ import "../styles/site.css";
 import { withBase } from "../lib/archive";
 
 const { title = "northernandy", description = "Durable project archive rendered through Astro." } = Astro.props;
+const pathname = Astro.url.pathname;
 
 const navigation = [
   { label: "Home", href: withBase("/") },
@@ -12,6 +13,14 @@ const navigation = [
   { label: "Reference", href: withBase("/reference/") },
   { label: "Derived", href: withBase("/derived/social/") }
 ];
+
+function isActive(href: string) {
+  if (href === withBase("/")) {
+    return pathname === href;
+  }
+
+  return pathname.startsWith(href);
+}
 ---
 
 <!doctype html>
@@ -26,15 +35,19 @@ const navigation = [
     <div class="page-shell">
       <header class="site-header">
         <div class="wrap masthead">
-          <div>
+          <div class="brand-block">
             <a class="brand" href={withBase("/")}>northernandy</a>
-            <p class="brand-note">The archive is the product.</p>
+            <p class="brand-note">Project records, field notes, reference, and derived material.</p>
           </div>
           <nav class="site-nav" aria-label="Primary">
             {navigation.map((item) => (
-              <a href={item.href}>{item.label}</a>
+              <a class={isActive(item.href) ? "is-active" : undefined} href={item.href}>{item.label}</a>
             ))}
           </nav>
+        </div>
+        <div class="wrap header-context">
+          <p class="header-copy">Static site in front, portable archive underneath.</p>
+          <a class="header-link" href={withBase("/projects/")}>Open current work</a>
         </div>
       </header>
       <main class="wrap">
@@ -42,8 +55,8 @@ const navigation = [
       </main>
       <footer class="site-footer">
         <div class="wrap footer-grid">
-          <p>Canonical content lives in the root archive. Astro is only the current renderer.</p>
-          <p>Markdown-first. Portable. Replaceable.</p>
+          <p>Local Markdown and static assets hold the durable record.</p>
+          <p>Projects, logs, notes, reference, and derived outputs stay separable from the renderer.</p>
         </div>
       </footer>
     </div>

@@ -2,92 +2,196 @@
 import { getCollection } from "astro:content";
 import EntryList from "../components/EntryList.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { isProjectLanding, sortEntries, withBase } from "../lib/archive";
+import { buildEntryUrl, collectionLabel, getProjectSlug, isProjectLanding, isProjectLog, sortEntries, withBase } from "../lib/archive";
 
-const projects = sortEntries((await getCollection("projects")).filter(isProjectLanding));
+const allProjects = sortEntries(await getCollection("projects"));
+const projects = allProjects.filter(isProjectLanding);
+const projectActivity = allProjects.filter(isProjectLog);
 const logs = sortEntries(await getCollection("logs"));
 const notes = sortEntries(await getCollection("notes"));
 const reference = sortEntries(await getCollection("reference"));
 const social = sortEntries(await getCollection("derivedSocial"));
 const scripts = sortEntries(await getCollection("derivedScripts"));
+const activeProjects = projects.filter((entry) => entry.data.status === "active");
+const featuredProject = activeProjects[0] ?? projects[0];
+const featuredProjectActivity = projectActivity.slice(0, 4);
+const latestLog = logs[0];
+const recentSignals = sortEntries([...projectActivity, ...logs, ...notes]).slice(0, 5);
+const sectionLinks = [
+  {
+    label: "Projects",
+    href: withBase("/projects/"),
+    count: projects.length,
+    description: "Canonical project records with attached failures, lessons, reference pages, and experiments.",
+    featured: featuredProject?.data.title
+  },
+  {
+    label: "Logs",
+    href: withBase("/logs/"),
+    count: logs.length,
+    description: "Archive-wide pivots, structural changes, and dated maintenance notes.",
+    featured: latestLog?.data.title
+  },
+  {
+    label: "Notes",
+    href: withBase("/notes/"),
+    count: notes.length,
+    description: "Working principles and reusable thinking captured beside the project work.",
+    featured: notes[0]?.data.title
+  },
+  {
+    label: "Reference",
+    href: withBase("/reference/"),
+    count: reference.length,
+    description: "Templates, facts, and supporting structure that help the archive stay legible.",
+    featured: reference[0]?.data.title
+  },
+  {
+    label: "Derived",
+    href: withBase("/derived/social/"),
+    count: social.length + scripts.length,
+    description: "Outputs generated from the source record so publication never replaces the project notes.",
+    featured: social[0]?.data.title ?? scripts[0]?.data.title
+  }
+];
 ---
 
 <BaseLayout
   title="northernandy | Archive"
-  description="Durable project archive with Astro used as a replaceable presentation layer."
+  description="Project archive covering active builds, experiments, failures, and working notes."
 >
   <section class="hero">
     <div class="hero-grid">
-      <div>
-        <p class="eyebrow">Archive First</p>
-        <h1>Document once. Render anywhere.</h1>
+      <div class="hero-copy">
+        <p class="eyebrow">Project Archive</p>
+        <h1>Industrial projects, failures, experiments, and reference in one linked record.</h1>
         <p class="lede">
-          Canonical project records, logs, notes, and reference material live outside the site implementation.
-          Astro reads the archive. It does not own it.
+          The point of the site is to make the work easy to enter: active retrofits, attached notes, dated experiments,
+          and the references that support each decision. The archive seam matters because the work should outlast the renderer.
         </p>
         <div class="action-row">
           <a class="button" href={withBase("/projects/")}>Browse projects</a>
-          <a class="button secondary" href={withBase("/derived/social/")}>View derived content</a>
+          <a class="button secondary" href="#recent-activity">Recent activity</a>
         </div>
+        {featuredProject?.data.tags?.length > 0 && (
+          <ul class="tag-list hero-tags">
+            {featuredProject.data.tags.slice(0, 5).map((tag) => (
+              <li>{tag}</li>
+            ))}
+          </ul>
+        )}
       </div>
-      <div class="detail-grid">
-        <article class="detail-card">
-          <p class="eyebrow">Canonical</p>
-          <h2>Markdown archive</h2>
-          <p>Projects, logs, notes, reference material, failures, lessons, and experiments live in plain files.</p>
-        </article>
-        <article class="detail-card">
-          <p class="eyebrow">Derived</p>
-          <h2>Regenerable output</h2>
-          <p>Social drafts and scripts are kept separate so publicity never replaces source material.</p>
+      <div class="hero-rail">
+        {featuredProject && (
+          <article class="detail-card detail-card-featured spotlight-card">
+            <p class="eyebrow">Current focus</p>
+            <h2>{featuredProject.data.title}</h2>
+            <p>{featuredProject.data.summary ?? featuredProject.data.description}</p>
+            <div class="detail-meta">
+              {featuredProject.data.status && <span>{featuredProject.data.status}</span>}
+              <span>{featuredProject.data.tags.length} tags</span>
+              <span>{getProjectSlug(featuredProject)}</span>
+            </div>
+            <p>
+              <a class="text-link" href={buildEntryUrl("projects", featuredProject.id)}>Open project record</a>
+            </p>
+          </article>
+        )}
+        <article class="detail-card detail-card-compact signal-card">
+          <p class="eyebrow">Latest signals</p>
+          <ul class="signal-list compact-signal-list">
+            {recentSignals.slice(0, 3).map((entry) => (
+              <li>
+                <a href={buildEntryUrl(entry.collection, entry.id)}>
+                  <span class="entry-kicker">{collectionLabel(entry.collection)}</span>
+                  <strong>{entry.data.title}</strong>
+                </a>
+              </li>
+            ))}
+          </ul>
         </article>
       </div>
     </div>
   </section>
 
-  <section class="section-panel">
-    <div class="stats-grid">
-      <article class="stat-card">
-        <p class="stat-value">{projects.length}</p>
-        <p class="stat-label">project records</p>
-      </article>
-      <article class="stat-card">
-        <p class="stat-value">{logs.length}</p>
-        <p class="stat-label">archive logs</p>
-      </article>
-      <article class="stat-card">
-        <p class="stat-value">{notes.length + reference.length}</p>
-        <p class="stat-label">notes and references</p>
-      </article>
-      <article class="stat-card">
-        <p class="stat-value">{social.length + scripts.length}</p>
-        <p class="stat-label">derived drafts</p>
-      </article>
+  <section class="section-panel explore-panel">
+    <div class="section-heading">
+      <p class="eyebrow">Start anywhere</p>
+      <h2>Five ways into the archive</h2>
+      <p class="lede">These are not blog categories. They are entry points into the same project record from different angles.</p>
+    </div>
+    <div class="path-grid">
+      {sectionLinks.map((section) => (
+        <a class="path-card" href={section.href}>
+          <div class="path-topline">
+            <span class="path-count">{section.count}</span>
+            <span class="path-label">{section.label}</span>
+          </div>
+          <p>{section.description}</p>
+          {section.featured && <p class="quiet">Latest: {section.featured}</p>}
+        </a>
+      ))}
     </div>
   </section>
 
   <EntryList
     collection="projects"
-    entries={projects.slice(0, 3)}
-    title="Projects"
-    intro="The canonical record of work. Start here."
+    entries={projects.slice(0, 4)}
+    title="Current projects"
+    intro="Start with the work itself: the main project records, their scope, and where each effort stands now."
   />
+
+  <section class="split-grid" id="recent-activity">
+    <div class="section-panel">
+      <div class="section-heading">
+        <p class="eyebrow">Recent activity</p>
+        <h2>What changed most recently</h2>
+        <p class="lede">A mixed feed of project worklogs, archive logs, and working notes.</p>
+      </div>
+      <ul class="signal-list signal-list-expanded">
+        {recentSignals.map((entry) => (
+          <li class="signal-item">
+            <a class="signal-link" href={buildEntryUrl(entry.collection, entry.id)}>
+              <div>
+                <span class="entry-kicker">{collectionLabel(entry.collection)}</span>
+                <h3>{entry.data.title}</h3>
+                <p class="quiet">{entry.data.summary ?? entry.data.description ?? "Open the entry for the full record."}</p>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div class="section-panel section-panel-briefing">
+      <p class="eyebrow">Why this is linked this way</p>
+      <h2>Projects are the spine. Everything else attaches to them.</h2>
+      <p class="lede">
+        A modern archive site should not feel like a blog with a few pages. It should feel like a navigable record where you can move from a project
+        to its experiments, related notes, reference facts, and derived outputs without losing context.
+      </p>
+      <div class="callout-list quiet">
+        <p>{activeProjects.length} active project records are surfaced first.</p>
+        <p>{featuredProjectActivity.length} recent attached project logs are available directly from the home page.</p>
+        <p>{social.length + scripts.length} derived outputs remain reachable without displacing the source material.</p>
+      </div>
+    </div>
+  </section>
 
   <section class="split-grid">
     <div class="section-panel">
       <EntryList
-        collection="logs"
-        entries={logs.slice(0, 3)}
-        title="Recent Logs"
-        intro="Repository-wide changes and dated updates."
+        collection="projects"
+        entries={featuredProjectActivity}
+        title="Attached project logs"
+        intro="The newest experiments and work notes tied directly to individual projects."
       />
     </div>
     <div class="section-panel">
       <EntryList
-        collection="notes"
-        entries={notes.slice(0, 3)}
-        title="Notes"
-        intro="Working principles, lessons, and reusable thinking."
+        collection="reference"
+        entries={reference.slice(0, 3)}
+        title="Reference and support"
+        intro="Facts, templates, and guidance that help the project record stay usable over time."
       />
     </div>
   </section>

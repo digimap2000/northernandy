@@ -1,5 +1,5 @@
 ---
-import { buildEntryUrl, formatDate } from "../lib/archive";
+import { buildEntryUrl, collectionLabel, formatDate } from "../lib/archive";
 
 const { collection, entries, title, intro } = Astro.props;
 ---
@@ -7,7 +7,7 @@ const { collection, entries, title, intro } = Astro.props;
 <section class="section-stack">
   {title && (
     <div class="section-heading">
-      <p class="eyebrow">Archive View</p>
+      <p class="eyebrow">{collectionLabel(collection)}</p>
       <h2>{title}</h2>
       {intro && <p class="lede">{intro}</p>}
     </div>
@@ -17,7 +17,10 @@ const { collection, entries, title, intro } = Astro.props;
     {entries.map((entry) => (
       <li class="entry-card">
         <a class="entry-link" href={buildEntryUrl(collection, entry.id)}>
-          <span class="entry-kicker">{entry.data.type}</span>
+          <div class="entry-topline">
+            <span class="entry-kicker">{entry.data.type}</span>
+            <span class="entry-arrow">Open</span>
+          </div>
           <h3>{entry.data.title}</h3>
           {entry.data.summary && <p>{entry.data.summary}</p>}
           <div class="entry-meta">
