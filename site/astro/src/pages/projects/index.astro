@@ -1,21 +1,87 @@
 ---
 import { getCollection } from "astro:content";
-import EntryList from "../../components/EntryList.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { isProjectLanding, sortEntries } from "../../lib/archive";
+import { buildEntryUrl, formatDate, getProjectSlug, isProjectLanding, sortEntries, withBase } from "../../lib/archive";
 
-const projects = sortEntries((await getCollection("projects")).filter(isProjectLanding));
+const allProjectEntries = sortEntries(await getCollection("projects"));
+const projects = allProjectEntries.filter(isProjectLanding);
+
+const projectCards = projects.map((project) => {
+  const projectSlug = getProjectSlug(project);
+  const recentEntries = sortEntries(
+    allProjectEntries.filter((entry) => entry.id !== project.id && getProjectSlug(entry) === projectSlug)
+  ).slice(0, 2);
+
+  return {
+    project,
+    projectSlug,
+    recentEntries
+  };
+});
+
+function projectMonogram(title) {
+  return title
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
 ---
 
 <BaseLayout title="Projects | northernandy" description="Canonical project records from the archive.">
-  <section class="section-panel">
-    <p class="eyebrow">Projects</p>
-    <h1>Canonical project records</h1>
-    <p class="lede">
-      These are the durable source pages. Experiments, failures, and lessons are attached to each project rather than hidden inside a frontend.
-    </p>
-  </section>
+  <section class="project-board">
+    {projectCards.map(({ project, recentEntries }) => (
+      <article class="project-panel">
+        <a class="project-panel-link" href={buildEntryUrl("projects", project.id)}>
+          <div class="project-panel-media">
+            {project.data.cover ? (
+              <img src={withBase(project.data.cover)} alt={project.data.title} loading="lazy" />
+            ) : (
+              <div class="project-panel-placeholder" aria-hidden="true"></div>
+            )}
+            <div class="project-panel-badge" aria-hidden="true">
+              <span>{projectMonogram(project.data.title)}</span>
+            </div>
+          </div>
+          <div class="project-panel-body">
+            <div class="project-panel-copy">
+              <div class="project-panel-topline">
+                <span class="entry-kicker">{project.data.status ?? project.data.type}</span>
+                <span class="project-panel-date">{formatDate(project.data.updated ?? project.data.date)}</span>
+              </div>
+              <h2>{project.data.title}</h2>
+              <p class="project-panel-summary">{project.data.summary ?? project.data.description}</p>
 
-  <EntryList collection="projects" entries={projects} />
+              {project.data.tags?.length > 0 && (
+                <ul class="tag-list project-panel-tags">
+                  {project.data.tags.slice(0, 4).map((tag) => (
+                    <li>{tag}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <section class="project-panel-recent">
+              <p class="eyebrow">Recent attached content</p>
+              {recentEntries.length > 0 ? (
+                <ul class="project-teaser-list">
+                  {recentEntries.map((entry) => (
+                    <li>
+                      <span class="project-teaser-date">{formatDate(entry.data.updated ?? entry.data.date)}</span>
+                      <strong>{entry.data.title}</strong>
+                      <p>{entry.data.summary ?? entry.data.description ?? "Open the entry for the full record."}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p class="quiet project-teaser-empty">This project is newly established. The root record is live, and attached pages will accumulate from here.</p>
+              )}
+            </section>
+          </div>
+        </a>
+      </article>
+    ))}
+  </section>
 </BaseLayout>
 

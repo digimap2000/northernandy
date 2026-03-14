@@ -3,6 +3,7 @@ title: "Repository Foundation"
 description: "Content-first archive architecture for preserving project knowledge independent of the renderer."
 date: 2026-03-13
 updated: 2026-03-13
+cover: "/assets/images/projects/repository-foundation.svg"
 project: "repository-foundation"
 tags:
   - archive

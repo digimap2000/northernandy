@@ -2,7 +2,7 @@
 import "../styles/site.css";
 import { withBase } from "../lib/archive";
 
-const { title = "northernandy", description = "Durable project archive rendered through Astro." } = Astro.props;
+const { title = "northernandy", description = "Durable project archive rendered through Astro.", wide = false } = Astro.props;
 const pathname = Astro.url.pathname;
 
 const navigation = [
@@ -50,13 +50,16 @@ function isActive(href: string) {
           <a class="header-link" href={withBase("/projects/")}>Open current work</a>
         </div>
       </header>
-      <main class="wrap">
+      <main class:list={["wrap", wide && "wrap-wide"]}>
         <slot />
       </main>
       <footer class="site-footer">
         <div class="wrap footer-grid">
-          <p>Local Markdown and static assets hold the durable record.</p>
-          <p>Projects, logs, notes, reference, and derived outputs stay separable from the renderer.</p>
+          <div>
+            <p class="footer-title">Andrew Shelley</p>
+            <p class="footer-copy">The Peak District, United Kingdom.</p>
+            <p class="footer-copy"><a href="mailto:andrewjohnshelley@gmail.com">andrewjohnshelley@gmail.com</a></p>
+          </div>
         </div>
       </footer>
     </div>

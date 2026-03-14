@@ -17,6 +17,7 @@ const archiveSchema = z.object({
   description: z.string().optional(),
   date: z.coerce.date(),
   updated: z.coerce.date().optional(),
+  cover: z.string().optional(),
   project: z.string().optional(),
   tags: z.array(z.string()).default([]),
   status: z.string().optional(),

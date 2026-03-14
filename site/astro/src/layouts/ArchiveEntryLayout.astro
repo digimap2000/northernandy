@@ -2,29 +2,31 @@
 import BaseLayout from "./BaseLayout.astro";
 import { collectionLabel, formatDate } from "../lib/archive";
 
-const { title, description, collection, entry } = Astro.props;
+const { title, description, collection, entry, showHeader = true, wide = false } = Astro.props;
 ---
 
-<BaseLayout title={`${title} | northernandy`} description={description}>
+<BaseLayout title={`${title} | northernandy`} description={description} wide={wide}>
   <article class="article-shell">
-    <header class="article-header">
-      <p class="eyebrow">{collectionLabel(collection)}</p>
-      <h1>{title}</h1>
-      {description && <p class="lede">{description}</p>}
-      <div class="article-meta">
-        <span>{entry.data.type}</span>
-        <span>{formatDate(entry.data.updated ?? entry.data.date)}</span>
-        {entry.data.status && <span>{entry.data.status}</span>}
-        {entry.data.project && <span>{entry.data.project}</span>}
-      </div>
-      {entry.data.tags?.length > 0 && (
-        <ul class="tag-list">
-          {entry.data.tags.map((tag) => (
-            <li>{tag}</li>
-          ))}
-        </ul>
-      )}
-    </header>
+    {showHeader && (
+      <header class="article-header">
+        <p class="eyebrow">{collectionLabel(collection)}</p>
+        <h1>{title}</h1>
+        {description && <p class="lede">{description}</p>}
+        <div class="article-meta">
+          <span>{entry.data.type}</span>
+          <span>{formatDate(entry.data.updated ?? entry.data.date)}</span>
+          {entry.data.status && <span>{entry.data.status}</span>}
+          {entry.data.project && <span>{entry.data.project}</span>}
+        </div>
+        {entry.data.tags?.length > 0 && (
+          <ul class="tag-list">
+            {entry.data.tags.map((tag) => (
+              <li>{tag}</li>
+            ))}
+          </ul>
+        )}
+      </header>
+    )}
     <div class="article-content">
       <slot />
     </div>

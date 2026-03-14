@@ -1,0 +1,76 @@
+---
+import { buildEntryUrl } from "../lib/archive";
+
+const { currentEntry, projectRoot, projectPages, referencePages, experimentLogs } = Astro.props;
+
+function linkFor(entry) {
+  return buildEntryUrl("projects", entry.id);
+}
+
+function isCurrent(entry) {
+  return entry.id === currentEntry.id;
+}
+
+const sections = [
+  {
+    title: "Project root",
+    intro: "The anchor page for this project.",
+    items: projectRoot ? [projectRoot] : []
+  },
+  {
+    title: "Attached pages",
+    intro: "Scope, architecture, failures, lessons, and adjacent project material.",
+    items: projectPages
+  },
+  {
+    title: "Reference",
+    intro: "Facts, constraints, and support material specific to this project.",
+    items: referencePages
+  },
+  {
+    title: "Experiments",
+    intro: "Chronological logs and hands-on work records.",
+    items: experimentLogs
+  }
+].filter((section) => section.items.length > 0);
+
+function sectionMonogram(title) {
+  return title
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+---
+
+{sections.length > 0 && (
+  <section class="project-map section-panel">
+    <div class="section-heading">
+      <p class="eyebrow">Project map</p>
+      <h2>Move through this project as a record, not a post</h2>
+      <p class="lede">Each project keeps its durable pages, references, and experiment logs linked together here.</p>
+    </div>
+    <div class="project-map-grid">
+      {sections.map((section) => (
+        <section class="project-map-card">
+          <div class="project-map-media" aria-hidden="true">
+            <span>{sectionMonogram(section.title)}</span>
+          </div>
+          <h3>{section.title}</h3>
+          <p class="quiet">{section.intro}</p>
+          <ul class="project-map-list">
+            {section.items.map((entry) => (
+              <li>
+                <a class:list={["project-map-link", isCurrent(entry) && "is-current"]} href={linkFor(entry)}>
+                  <span>{entry.data.title}</span>
+                  <span class="project-map-state">{isCurrent(entry) ? "Current" : "Open"}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  </section>
+)}

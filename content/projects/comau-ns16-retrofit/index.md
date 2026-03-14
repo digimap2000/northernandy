@@ -3,6 +3,7 @@ title: "Comau NS16 Retrofit"
 description: "Conversion of a Comau NS16 industrial robot to modern stepper-based control with AI-assisted tooling and interfaces."
 date: 2026-03-13
 updated: 2026-03-13
+cover: "/assets/images/projects/comau-ns16-retrofit.svg"
 project: "comau-ns16-retrofit"
 tags:
   - robotics

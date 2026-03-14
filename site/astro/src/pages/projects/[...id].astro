@@ -2,7 +2,8 @@
 import { getCollection, render } from "astro:content";
 import ArchiveEntryLayout from "../../layouts/ArchiveEntryLayout.astro";
 import EntryList from "../../components/EntryList.astro";
-import { buildEntryUrl, getProjectSlug, isProjectLog, sortEntries, withBase } from "../../lib/archive";
+import ProjectNavigator from "../../components/ProjectNavigator.astro";
+import { buildEntryUrl, formatDate, getProjectSlug, isProjectLog, sortEntries, withBase } from "../../lib/archive";
 
 export async function getStaticPaths() {
   const entries = await getCollection("projects");
@@ -15,11 +16,15 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const projectSlug = getProjectSlug(entry);
+const isProjectRoot = entry.id === projectSlug || entry.data.type === "project";
 const allProjectEntries = await getCollection("projects");
+const projectRoot = allProjectEntries.find((item) => item.id === projectSlug);
 const relatedProjectEntries = sortEntries(
   allProjectEntries.filter((item) => item.id !== entry.id && getProjectSlug(item) === projectSlug)
 );
 const siblingPages = relatedProjectEntries.filter((item) => !isProjectLog(item));
+const referencePages = siblingPages.filter((item) => item.data.type === "reference" || item.id.includes("/reference/"));
+const projectPages = siblingPages.filter((item) => !referencePages.includes(item));
 const experimentLogs = relatedProjectEntries.filter((item) => isProjectLog(item));
 ---
 
@@ -28,22 +33,59 @@ const experimentLogs = relatedProjectEntries.filter((item) => isProjectLog(item)
   entry={entry}
   title={entry.data.title}
   description={entry.data.description ?? entry.data.summary}
+  showHeader={!isProjectRoot}
 >
-  <div class="action-row">
-    <a class="button secondary" href={withBase("/projects/")}>Back to projects</a>
-    {entry.id !== projectSlug && <a class="button" href={buildEntryUrl("projects", projectSlug)}>Open project root</a>}
-  </div>
+  {isProjectRoot ? (
+    <section class="page-intro project-root-intro">
+      <div>
+        <p class="eyebrow">Project</p>
+        <h1>{entry.data.title}</h1>
+      </div>
+      <div class="project-root-meta">
+        <span>{entry.data.status ?? entry.data.type}</span>
+        <span>{entry.data.updated ? "Updated " : "Started "}{formatDate(entry.data.updated ?? entry.data.date)}</span>
+      </div>
+      {entry.data.tags?.length > 0 && (
+        <ul class="tag-list">
+          {entry.data.tags.map((tag) => (
+            <li>{tag}</li>
+          ))}
+        </ul>
+      )}
+    </section>
+  ) : (
+    <div class="action-row">
+      <a class="button secondary" href={withBase("/projects/")}>Back to projects</a>
+      {entry.id !== projectSlug && <a class="button" href={buildEntryUrl("projects", projectSlug)}>Open project root</a>}
+    </div>
+  )}
 
-  <Content />
+  <ProjectNavigator
+    currentEntry={entry}
+    projectRoot={projectRoot}
+    projectPages={projectPages}
+    referencePages={referencePages}
+    experimentLogs={experimentLogs}
+  />
 
-  {(siblingPages.length > 0 || experimentLogs.length > 0) && (
+  {!isProjectRoot && <Content />}
+
+  {(projectPages.length > 0 || referencePages.length > 0 || experimentLogs.length > 0) && (
     <section class="section-stack">
-      {siblingPages.length > 0 && (
+      {projectPages.length > 0 && (
         <EntryList
           collection="projects"
-          entries={siblingPages}
+          entries={projectPages}
           title="Related project pages"
           intro="Additional pages attached to this project."
+        />
+      )}
+      {referencePages.length > 0 && (
+        <EntryList
+          collection="projects"
+          entries={referencePages}
+          title="Reference attached to this project"
+          intro="Stable facts, safety boundaries, and support material for this specific project."
         />
       )}
       {experimentLogs.length > 0 && (
